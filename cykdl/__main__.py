@@ -4,6 +4,8 @@
 from __future__ import print_function
 import sys
 import os
+import ssl
+from urllib.request import HTTPSHandler
 from base64 import b64encode
 try:
     import ykdl
@@ -45,6 +47,7 @@ def arg_parser():
     parser.add_argument('-p', '--player', help="Directly play the video with PLAYER like mpv")
     parser.add_argument('--proxy', type=str, default='system', help="set proxy HOST:PORT for http(s) transfer. default: use system proxy settings")
     parser.add_argument('--proxy-basic-auth', type=str, default='', help="set proxy username:password for proxy basic authorization.")
+    parser.add_argument('--no-check-certificate', default=False, action='store_true', help="suppress HTTPS certificate validation")
     parser.add_argument('-t', '--timeout', type=int, default=60, help="set socket timeout seconds, default 60s")
     parser.add_argument('--no-merge', action='store_true', default=False, help="do not merge video slides")
     parser.add_argument('-s', '--start', type=int, default=0, help="start from INDEX to play/download playlist")
@@ -147,7 +150,16 @@ def main():
             'https': args.proxy
         })
     if not args.proxy == 'none':
-        opener = build_opener(proxy_handler)
+        handlers = [proxy_handler]
+
+        if args.no_check_certificate:
+            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            https_handler = HTTPSHandler(context=context)
+            handlers.append(https_handler)
+
+        opener = build_opener(*handlers)
 
         if args.proxy_basic_auth:
             base64_param = b64encode(args.proxy_basic_auth.encode('utf-8')).decode('ascii')
