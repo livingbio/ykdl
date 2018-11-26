@@ -26,7 +26,7 @@ from ykdl.version import __version__
 REQ = ['m3u8', 'pycryptodome', 'urllib3']
 
 setup(
-    name = "ykdl",
+    name = "livingbio-ykdl",
     version = __version__,
     author = "Zhang Ning",
     author_email = "zhangn1985@gmail.com",

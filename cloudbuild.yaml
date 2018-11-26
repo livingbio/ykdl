@@ -1,0 +1,12 @@
+timeout: 1800s
+
+steps:
+# release sdk package
+- name: 'python:2.7-alpine'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - 'cp .pypirc ~/.pypirc && python setup.py sdist upload -r g8'
+  id: 'release-pip'
+  env:
+  - SETUPTOOLS_SCM_PRETEND_VERSION=$TAG_NAME
